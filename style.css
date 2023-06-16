@@ -1,0 +1,7 @@
+#distanceDisplay {
+  font-size: 35px;
+  font-weight: bold;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  color: gold; /* Add this line */
+}
