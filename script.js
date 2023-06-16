@@ -1,24 +1,33 @@
-var StravaApiV3 = require('strava_api_v3');
-var defaultClient = StravaApiV3.ApiClient.instance;
+let accessToken = '42e4e575615ad9d481ef6cbb919584778ece48fd';
+const activityId = '109076';
+const distanceDisplay = document.getElementById('distanceDisplay');
 
-// Configure OAuth2 access token for authorization: strava_oauth
-var strava_oauth = defaultClient.authentications['strava_oauth'];
-strava_oauth.accessToken = "4822f9667e6225b7b9c5a7f7549b82bad381476b"
+function fetchDistanceData() {
+  // Make API call using the access token
+  fetch(`https://www.strava.com/api/v3/activities/${activityId}/streams?keys=distance&key_by_type=true`, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  })
+    .then(response => response.json())
+    .then(data => {
+      // Process the data to extract the distance
+      const distanceStream = data.find(stream => stream.type === 'distance');
+      const distanceInMeters = distanceStream && distanceStream.data.length > 0 ? distanceStream.data[0] : 0;
 
-var api = new StravaApiV3.StreamsApi()
+      // Convert the distance from meters to kilometers
+      const distanceInKm = distanceInMeters / 1000;
 
-var id = 109076; // {Long} The identifier of the activity.
+      // Update the distance display element with the new value
+      distanceDisplay.textContent = `Distance: ${distanceInKm.toFixed(2)} km`;
+    })
+    .catch(error => {
+      console.error('Error fetching distance data:', error);
+    });
+}
 
-var keys = ; // {array[String]} Desired stream types.
+// Call the fetchDistanceData function to update the overlay initially
+fetchDistanceData();
 
-var keyByType = true; // {Boolean} Must be true.
-
-
-var callback = function(error, data, response) {
-  if (error) {
-    console.error(error);
-  } else {
-    console.log('API called successfully. Returned data: ' + data);
-  }
-};
-api.getActivityStreams(id, keys, keyByType, callback);
+// Update the overlay periodically (e.g., every second)
+setInterval(fetchDistanceData, 1000);
